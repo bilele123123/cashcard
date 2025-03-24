@@ -1,0 +1,6 @@
+[
+  {"id": 99, "amount": 123.45, "owner": "Thai" },
+  {"id": 102, "amount": 111.45, "owner": "Thai" },
+  {"id": 100, "amount": 1.00, "owner": "Thai" },
+  {"id": 101, "amount": 150.00, "owner": "Thai" }
+]
