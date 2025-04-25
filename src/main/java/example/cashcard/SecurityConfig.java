@@ -49,7 +49,6 @@ class SecurityConfig {
                 .password(passwordEncoder.encode("abc123"))
                 .roles("CARD-OWNER")
                 .build();
-
         return new InMemoryUserDetailsManager(thai, userOwnsNoCard, mike);
     }
 

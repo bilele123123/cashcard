@@ -3,6 +3,7 @@ package example.cashcard;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import net.minidev.json.JSONArray;
+import org.apache.coyote.Response;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -244,5 +245,44 @@ class CashCardApplicationTests {
 				.withBasicAuth("Thai", "abc123")
 				.exchange("/cashcards/103", HttpMethod.PUT, request, Void.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+	}
+
+	@Test
+	@DirtiesContext
+	void shouldDeleteAnExistingCard() {
+		ResponseEntity<Void> response = restTemplate
+				.withBasicAuth("Thai", "abc123")
+				.exchange("/cashcards/99", HttpMethod.DELETE, null, Void.class);
+
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
+		ResponseEntity<String> getResponse = restTemplate
+				.withBasicAuth("Thai", "abc123")
+				.getForEntity("/cashcards/99", String.class);
+
+		assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+	}
+
+	@Test
+	void shouldNotDeleteCardThatDoesNotExist() {
+		ResponseEntity<Void> response = restTemplate
+				.withBasicAuth("Thai", "abc123")
+				.exchange("/cashcards/99999", HttpMethod.DELETE, null, Void.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+	}
+
+	@Test
+	void shouldNotDeleteCardThatIsOwnedBySomeoneElse() {
+		ResponseEntity<Void> response = restTemplate
+				.withBasicAuth("Mike", "abc123")
+				.exchange("/cashcards/99", HttpMethod.DELETE, null, Void.class);
+
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+
+		ResponseEntity<String> getResponse = restTemplate
+				.withBasicAuth("Thai", "abc123")
+				.getForEntity("/cashcards/99", String.class);
+
+		assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 }
